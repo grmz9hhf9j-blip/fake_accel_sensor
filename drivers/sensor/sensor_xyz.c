@@ -6,6 +6,8 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/sensor.h>
 
+#include <zephyr/sys/util.h>
+
 static const struct sensor_value sensor_xyz_gravity = {
 	.val1 = 9,
 	.val2 = 806650,
@@ -55,18 +57,28 @@ static DEVICE_API(sensor, sensor_xyz_api) = {
 	.channel_get = sensor_xyz_channel_get,
 };
 
-#define SENSOR_XYZ_DEFINE(inst)                              \
-	static struct sensor_xyz_data sensor_xyz_data_##inst = { \
-		.latest = {                                          \
-			.ax_ms2 = {.val1 = 1, .val2 = 0},                \
-			.ay_ms2 = {.val1 = 2, .val2 = 0},                \
-		},                                                   \
-		.fetched_valid = false,                              \
-	};                                                       \
-	DEVICE_DT_INST_DEFINE(inst, NULL, NULL,                  \
-						  &sensor_xyz_data_##inst, NULL,     \
-						  POST_KERNEL,                       \
-						  CONFIG_SENSOR_INIT_PRIORITY,       \
+#define SENSOR_XYZ_RATE(inst) \
+	DT_INST_PROP_OR(inst, odr_hz, CONFIG_SENSOR_XYZ_RATE_HZ)
+
+#define SENSOR_XYZ_DEFINE(inst)                                        \
+	BUILD_ASSERT(SENSOR_XYZ_RATE(inst) >= 1 &&                         \
+					 SENSOR_XYZ_RATE(inst) <= 1600,                    \
+				 "sensor,xyz odr-hz must be between 1 and 1600");      \
+	static const struct sensor_xyz_config sensor_xyz_config_##inst = { \
+		.rate_hz = SENSOR_XYZ_RATE(inst),                              \
+	};                                                                 \
+	static struct sensor_xyz_data sensor_xyz_data_##inst = {           \
+		.latest = {                                                    \
+			.ax_ms2 = {.val1 = 1, .val2 = 0},                          \
+			.ay_ms2 = {.val1 = 2, .val2 = 0},                          \
+		},                                                             \
+		.fetched_valid = false,                                        \
+	};                                                                 \
+	DEVICE_DT_INST_DEFINE(inst, NULL, NULL,                            \
+						  &sensor_xyz_data_##inst,                     \
+						  &sensor_xyz_config_##inst,                   \
+						  POST_KERNEL,                                 \
+						  CONFIG_SENSOR_INIT_PRIORITY,                 \
 						  &sensor_xyz_api);
 
 DT_INST_FOREACH_STATUS_OKAY(SENSOR_XYZ_DEFINE)

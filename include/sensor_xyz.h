@@ -7,6 +7,10 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/kernel.h>
 
+struct sensor_xyz_config {
+    uint32_t rate_hz;
+}
+
 struct sensor_xyz_sample {
 	struct sensor_value ax_ms2;
 	struct sensor_value ay_ms2;
