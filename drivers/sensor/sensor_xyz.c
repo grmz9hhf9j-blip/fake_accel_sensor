@@ -42,6 +42,11 @@ static int sensor_xyz_channel_get(const struct device *dev,
 	return 0;
 }
 
+static DEVICE_API(sensor, sensor_xyz_api) = {
+	.sample_fetch = sensor_xyz_sample_fetch,
+	.channel_get = sensor_xyz_channel_get,
+};
+
 #define SENSOR_XYZ_DEFINE(inst)                                      \
 	static struct sensor_xyz_data sensor_xyz_data_##inst = {     \
 		.ax_ms2 = { .val1 = 1, .val2 = 0 },                  \
