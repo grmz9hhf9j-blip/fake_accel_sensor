@@ -28,7 +28,7 @@ static int sensor_xyz_channel_get(const struct device *dev,
 								  enum sensor_channel chan,
 								  struct sensor_value *val)
 {
-	const struct accel_sample *data = dev->data;
+	const struct sensor_xyz_data *data = dev->data;
 
 	if (chan != SENSOR_CHAN_ACCEL_XYZ)
 	{
