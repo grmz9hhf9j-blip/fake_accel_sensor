@@ -1,0 +1,13 @@
+description: Fake three-axis accelerometer
+
+compatible: "sensor,xyz"
+
+include: base.yaml
+
+properties:
+  odr-hz:
+    type: int
+    default: 100
+    description: |
+      Output data rate in Hz, from 1 to 1600.
+      When omitted, defaults to 100 Hz.
